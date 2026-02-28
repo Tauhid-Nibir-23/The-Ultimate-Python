@@ -1,6 +1,5 @@
 # False Position Method (User-defined equation)
 
-# Take equation input
 equation = input("Enter equation in terms of x (example: x**3 - 4*x - 9): ")
 
 # Define function using eval

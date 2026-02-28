@@ -1,4 +1,4 @@
-# Cholesky Method (Same Input Style)
+# Cholesky Method 
 
 n = int(input("Enter number of variables: "))
 
@@ -15,8 +15,8 @@ A = []
 B = []
 
 for i in range(n):
-    A.append(a[i][:n])   # first n elements
-    B.append(a[i][n])    # last element
+    A.append(a[i][:n])   
+    B.append(a[i][n])    
 
 # Create zero matrix L
 L = [[0.0]*n for i in range(n)]

@@ -1,4 +1,3 @@
-# Define function
 def f(x):
     return x**3 - 4*x - 9   # You can change this equation if needed
 
