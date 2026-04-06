@@ -1,0 +1,80 @@
+from heapq import heappush, heappop  # priority queue (min-heap) ব্যবহার করার জন্য
+
+
+G = {
+    "Arad": [("Zerind", 75), ("Sibiu", 140), ("Timisoara", 118)],
+    "Zerind": [("Arad", 75), ("Oradea", 71)],
+    "Oradea": [("Zerind", 71), ("Sibiu", 151)],
+    "Timisoara": [("Arad", 118), ("Lugoj", 111)],
+    "Lugoj": [("Timisoara", 111), ("Mehadia", 70)],
+    "Mehadia": [("Lugoj", 70), ("Drobeta", 75)],
+    "Drobeta": [("Mehadia", 75), ("Craiova", 120)],
+    "Craiova": [("Drobeta", 120), ("Rimnicu Vilcea", 146), ("Pitesti", 138)],
+    "Sibiu": [("Arad", 140), ("Oradea", 151), ("Fagaras", 99), ("Rimnicu Vilcea", 80)],
+    "Fagaras": [("Sibiu", 99), ("Bucharest", 211)],
+    "Rimnicu Vilcea": [("Sibiu", 80), ("Craiova", 146), ("Pitesti", 97)],
+    "Pitesti": [("Rimnicu Vilcea", 97), ("Craiova", 138), ("Bucharest", 101)],
+    "Bucharest": [("Fagaras", 211), ("Pitesti", 101), ("Giurgiu", 90), ("Urziceni", 85)],
+    "Giurgiu": [("Bucharest", 90)],
+    "Urziceni": [("Bucharest", 85), ("Hirsova", 98), ("Vaslui", 142)],
+    "Hirsova": [("Urziceni", 98), ("Eforie", 86)],
+    "Eforie": [("Hirsova", 86)],
+    "Vaslui": [("Urziceni", 142), ("Iasi", 92)],
+    "Iasi": [("Vaslui", 92), ("Neamt", 87)],
+    "Neamt": [("Iasi", 87)],
+}
+
+
+def ucs(graph, start, goal):
+    
+    frontier = []  
+    # frontier = queue যেখানে future explore করার path রাখা হবে
+
+    heappush(frontier, (0, start, [start]))  
+    # (cost, current_node, path_list)
+    # শুরুতে cost = 0, node = start, path = [start]
+
+    best_graph = {start: 0}  
+    # dictionary: কোন node এ যেতে minimum কত cost লাগে
+    # start এ যেতে cost = 0
+
+    while frontier:  
+        # যতক্ষণ queue খালি না হয়
+
+        path_cost, node, path_list = heappop(frontier)  
+        # সবচেয়ে কম cost এর path বের করা
+        # path_cost = এখন পর্যন্ত total cost
+        # node = current node
+        # path_list = এখন পর্যন্ত path
+
+        if node == goal:  
+            # যদি goal এ পৌঁছে যাই
+            return path_cost, path_list  
+            # total cost + full path return
+
+        for neighbor, neighbor_cost in graph[node]:  
+            # current node থেকে সব neighbor ঘোরা
+            # neighbor = পাশের node
+            # neighbor_cost = সেখানে যেতে cost
+
+            updated_cost = path_cost + neighbor_cost  
+            # নতুন total cost হিসাব করা
+
+            # যদি neighbor আগে না দেখি
+            # অথবা নতুন path আগের চেয়ে কম cost হয়
+            if neighbor not in best_graph or updated_cost < best_graph[neighbor]:
+
+                best_graph[neighbor] = updated_cost  
+                # best (lowest) cost update করা
+
+                heappush(frontier, (updated_cost, neighbor, path_list + [neighbor]))  
+                # নতুন path queue তে ঢোকানো
+                # path_list + [neighbor] = নতুন path তৈরি
+
+    return None, float("inf")  
+    # যদি goal না পাওয়া যায়
+    # None = path নাই
+    # inf = cost infinite
+cost, path= ucs(G, "Arad", "Bucharest")
+print("Path : ", " -> ".join(path))
+print("Cost : ", cost)

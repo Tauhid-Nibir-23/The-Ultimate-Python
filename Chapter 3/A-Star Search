@@ -1,0 +1,92 @@
+from heapq import heappush, heappop
+
+# Undirected weighted graph: city -> list of (neighbor, distance_km)
+G = {
+    "Arad": [("Zerind", 75), ("Sibiu", 140), ("Timisoara", 118)],
+    "Zerind": [("Arad", 75), ("Oradea", 71)],
+    "Oradea": [("Zerind", 71), ("Sibiu", 151)],
+    "Timisoara": [("Arad", 118), ("Lugoj", 111)],
+    "Lugoj": [("Timisoara", 111), ("Mehadia", 70)],
+    "Mehadia": [("Lugoj", 70), ("Drobeta", 75)],
+    "Drobeta": [("Mehadia", 75), ("Craiova", 120)],
+    "Craiova": [("Drobeta", 120), ("Rimnicu Vilcea", 146), ("Pitesti", 138)],
+    "Sibiu": [("Arad", 140), ("Oradea", 151), ("Fagaras", 99), ("Rimnicu Vilcea", 80)],
+    "Fagaras": [("Sibiu", 99), ("Bucharest", 211)],
+    "Rimnicu Vilcea": [("Sibiu", 80), ("Craiova", 146), ("Pitesti", 97)],
+    "Pitesti": [("Rimnicu Vilcea", 97), ("Craiova", 138), ("Bucharest", 101)],
+    "Bucharest": [("Fagaras", 211), ("Pitesti", 101), ("Giurgiu", 90), ("Urziceni", 85)],
+    "Giurgiu": [("Bucharest", 90)],
+    "Urziceni": [("Bucharest", 85), ("Hirsova", 98), ("Vaslui", 142)],
+    "Hirsova": [("Urziceni", 98), ("Eforie", 86)],
+    "Eforie": [("Hirsova", 86)],
+    "Vaslui": [("Urziceni", 142), ("Iasi", 92)],
+    "Iasi": [("Vaslui", 92), ("Neamt", 87)],
+    "Neamt": [("Iasi", 87)],
+}
+
+# Straight-line distances to Bucharest (heuristic)
+H = {
+    "Arad": 366, "Bucharest": 0, "Craiova": 160, "Drobeta": 242, "Eforie": 161,
+    "Fagaras": 176, "Giurgiu": 77, "Hirsova": 151, "Iasi": 226, "Lugoj": 244,
+    "Mehadia": 241, "Neamt": 234, "Oradea": 380, "Pitesti": 100,
+    "Rimnicu Vilcea": 193, "Sibiu": 253, "Timisoara": 329, "Urziceni": 80,
+    "Vaslui": 199, "Zerind": 374,
+}
+
+def a_star(graph, heuristic, start, goal):
+
+    frontier = []
+    # frontier = queue (future explore করার node থাকবে)
+
+    heappush(frontier, (heuristic[start], 0, start, [start]))
+    # (f_cost, g_cost, current_node, path_list)
+    # f_cost = g + h → এখানে শুরুতে g=0 তাই f = h(start)
+    # g_cost = actual path cost
+    # start node push করা হলো
+
+    best_graph = {start: 0}
+    # node অনুযায়ী best f(n) store করা
+
+    while frontier:
+        # যতক্ষণ queue খালি না হয়
+
+        cost, path_cost, node, path_list = heappop(frontier)
+        # সবচেয়ে কম f(n) যেটা, সেটা বের করা
+        # cost = f(n)
+        # path_cost = g(n)
+        # node = current node
+
+        if node == goal:
+            # goal এ পৌঁছে গেলে
+            return path_cost, path_list
+            # actual cost + path return
+
+        for neighbor, neighbor_cost in graph[node]:
+            # current node এর সব neighbor ঘোরা
+
+            # f(n) = g(n) + cost + h(n)
+            updated_cost = path_cost + neighbor_cost + heuristic[neighbor]
+
+            # যদি neighbor আগে না দেখি
+            # অথবা নতুন f(n) কম হয়
+            if neighbor not in best_graph or updated_cost < best_graph[neighbor]:
+
+                best_graph[neighbor] = updated_cost
+                # best f(n) update
+
+                heappush(
+                    frontier,
+                    (
+                        updated_cost,                 # f(n) = priority
+                        path_cost + neighbor_cost,    # g(n) update
+                        neighbor,                     # next node
+                        path_list + [neighbor]        # path update
+                    )
+                )
+                # নতুন path queue তে ঢোকানো
+
+# function call
+cost, path = a_star(G, H, "Arad", "Bucharest")
+
+print("Path : ", " -> ".join(path))
+print("Cost : ", cost)
